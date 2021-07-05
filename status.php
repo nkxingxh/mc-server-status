@@ -1,8 +1,9 @@
 <?php
 //using the class
 use MCServerStatus\MCPing;
+use MCServerStatus\MCQuery;
 
-function MCPing($server)
+function MCPing($server = "localhost", $port = 25565)
 {
 	require_once __DIR__ . '/MCPing.php';
 	require_once  __DIR__ . '/Exceptions/MCPingException.php';
@@ -10,7 +11,7 @@ function MCPing($server)
 	require_once  __DIR__ . '/Responses/MCPingResponse.php';
 
 	$response = MCPing::check($server);
-	
+
 
 	//get informations from object
 	//var_dump($response);
@@ -26,17 +27,35 @@ function MCPing($server)
 	return $res;
 }
 
-function motd2html($motd) {
+function MCQuery($server = "localhost", $port = 25565)
+{
+	require_once __DIR__ . '/MCQuery.php';
+	require_once  __DIR__ . '/Exceptions/MCQueryException.php';
+	require_once  __DIR__ . '/Responses/MCBaseResponse.php';
+	require_once  __DIR__ . '/Responses/MCQueryResponse.php';
+
+	$response = MCQuery::check($server, $port);
+
+	$res = $response->toArray();
+	$res['favicon'] = str_replace("\n", '', $res['favicon']);
+	$res['motd_html'] = $response->getMotdToHtml();
+	$res['motd_text'] = $response->getMotdToText();
+
+	return $res;
+}
+
+function motd2html($motd)
+{
 	preg_match_all("/[^§&]*[^§&]|[§&][0-9a-z][^§&]*/", $motd, $brokenupstrings);
 	$returnstring = "";
-	foreach($brokenupstrings as $results) {
+	foreach ($brokenupstrings as $results) {
 		$ending = '';
-		foreach($results as $individual) {
+		foreach ($results as $individual) {
 			$code = preg_split("/[&§][0-9a-z]/", $individual);
 			preg_match("/[&§][0-9a-z]/", $individual, $prefix);
-			if(isset($prefix[0])) {
+			if (isset($prefix[0])) {
 				$actualcode = substr($prefix[0], 1);
-				switch($actualcode) {
+				switch ($actualcode) {
 					case "1":
 						$returnstring = $returnstring . '<span style="color:#0000aa">';
 						$ending = $ending . "</span>";
@@ -98,25 +117,25 @@ function motd2html($motd) {
 						$ending = $ending . "</span>";
 						break;
 					case "l":
-						if(strlen($individual) > 2) {
+						if (strlen($individual) > 2) {
 							$returnstring = $returnstring . '<span style="font-weight:bold;">';
 							$ending = "</span>" . $ending;
 							break;
 						}
 					case "m":
-						if(strlen($individual) > 2) {
+						if (strlen($individual) > 2) {
 							$returnstring = $returnstring . '<del>';
 							$ending = "</del>" . $ending;
 							break;
 						}
 					case "n":
-						if(strlen($individual) > 2) {
+						if (strlen($individual) > 2) {
 							$returnstring = $returnstring . '<span style="text-decoration: underline;">';
 							$ending = "</span>" . $ending;
 							break;
 						}
 					case "o":
-						if(strlen($individual) > 2) {
+						if (strlen($individual) > 2) {
 							$returnstring = $returnstring . '<i>';
 							$ending = "</i>" . $ending;
 							break;
@@ -126,15 +145,14 @@ function motd2html($motd) {
 						$ending = '';
 						break;
 				}
-				if(isset($code[1])) {
+				if (isset($code[1])) {
 					$returnstring = $returnstring . $code[1];
-					if(isset($ending) && strlen($individual) > 2) {
+					if (isset($ending) && strlen($individual) > 2) {
 						$returnstring = $returnstring . $ending;
 						$ending = '';
 					}
 				}
-			}
-			else {
+			} else {
 				$returnstring = $returnstring . $individual;
 			}
 		}
