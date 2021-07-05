@@ -6,7 +6,9 @@ if (empty($_REQUEST['server'])) {
     $mcserver = $_REQUEST['server'];
 }
 
-$res = empty($_REQUEST['query']) ? MCPing($mcserver) : MCQuery($mcserver);
+$port = empty($_REQUEST['port']) ? 25565 : ((int) $_REQUEST['port']);
+$res = empty($_REQUEST['query']) ? MCPing($mcserver, $port) : MCQuery($mcserver, $port);
+
 if (!empty($_REQUEST['json'])) {
     echo json_encode($res);
     exit;
