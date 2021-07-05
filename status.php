@@ -10,7 +10,7 @@ function MCPing($server = "localhost", $port = 25565)
 	require_once  __DIR__ . '/Responses/MCBaseResponse.php';
 	require_once  __DIR__ . '/Responses/MCPingResponse.php';
 
-	$response = MCPing::check($server);
+	$response = MCPing::check($server, $port);
 
 
 	//get informations from object
